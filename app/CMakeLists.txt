@@ -8,7 +8,8 @@ set(distribution_DIR ../../../../libs)
 
 add_library( native-lib
              SHARED
-             src/main/cpp/FFmpeg-example.cpp )
+             src/main/cpp/FFmpeg-example.cpp
+             src/main/cpp/native-lib.cpp)
 
 add_library( avcodec-57
              SHARED
