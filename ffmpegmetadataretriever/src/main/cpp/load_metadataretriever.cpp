@@ -19,8 +19,6 @@ static fields_t fields;
 
 static ANativeWindow *theNativeWindow;
 
-static MediaMetadataRetriever *metadataRetriever;
-
 const char *classPathName = "com/cv/led/ffmpegmetadataretriever/LFFmpegMediaMetadataRetriever";
 
 void jniThrowException(JNIEnv *env, const char *className,
@@ -29,16 +27,14 @@ void jniThrowException(JNIEnv *env, const char *className,
     env->ThrowNew(exception, msg);
 }
 
-static void setRetriever(JNIEnv *env, jobject thiz, MediaMetadataRetriever * retriever) {
-    if (metadataRetriever != NULL) {
-        delete metadataRetriever;
-        metadataRetriever = NULL;
-    }
-    metadataRetriever = retriever;
+static void setRetriever(JNIEnv *env, jobject thiz, long retriever) {
+    env->SetLongField(thiz, fields.context, retriever);
 }
 
 static MediaMetadataRetriever *getRetriever(JNIEnv *env, jobject thiz){
-    return metadataRetriever;
+    MediaMetadataRetriever *retriever = reinterpret_cast<MediaMetadataRetriever *>(env->GetLongField(
+            thiz, fields.context));
+    return retriever;
 }
 
 static void nativeSetup(JNIEnv *env, jobject thiz){
@@ -48,7 +44,7 @@ static void nativeSetup(JNIEnv *env, jobject thiz){
         jniThrowException(env, "java/lang/RuntimeException", "Out of memory");
         return;
     }
-    setRetriever(env, thiz, retriever);
+    setRetriever(env, thiz, reinterpret_cast<long>(retriever));
 }
 
 static void process_media_retriever_call(JNIEnv *env, int opStatus, const char *exception,
@@ -523,6 +519,7 @@ static void nativeInit(JNIEnv *env, jobject thiz){
         return;
     }
 
+    // 使用这个参数，来保存MediaMetadataRetriever对象，解决多线程问题
     fields.context = env->GetFieldID(clazz, "mNativeContext", "J");
     if (fields.context == NULL) {
         return;

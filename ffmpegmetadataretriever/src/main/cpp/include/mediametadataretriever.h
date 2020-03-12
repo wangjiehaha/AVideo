@@ -30,7 +30,7 @@ public:
     int setNativeWindow(ANativeWindow* native_window);
 
 private:
-    Mutex                                     mLock;
+    Mutex mLock;
 };
 
 #endif //AVIDEO_MEDIAMETADATARETRIEVER_H
